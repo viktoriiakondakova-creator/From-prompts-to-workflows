@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From Prompts to Operational Workflows | AI Exchange Knowledge Sharing</title>
+  <style>
+    :root {
+      --red: #F1563C;
+      --orange: #FAAD5E;
+      --dark: #3C484E;
+      --blue: #516873;
+      --accent-blue: #105171;
+      --light-blue: #E2E9EC;
+      --soft: #FEEFDF;
+      --bg: #F8F8F8;
+      --gray: #666666;
+      --line: #DBDBDB;
+      --white: #FFFFFF;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--dark);
+      background: var(--bg);
+    }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+      padding: 64px 78px 54px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      right: -120px;
+      top: -140px;
+      width: 360px;
+      height: 360px;
+      border-radius: 48% 52% 45% 55%;
+      background: rgba(241, 86, 60, 0.10);
+      z-index: 0;
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      left: -90px;
+      bottom: -120px;
+      width: 280px;
+      height: 280px;
+      border-radius: 54% 46% 61% 39%;
+      background: rgba(226, 233, 236, 0.85);
+      z-index: 0;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 1120px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      color: var(--red);
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: .01em;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      background: var(--red);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--dark);
+      font-size: clamp(56px, 7vw, 104px);
+      line-height: 0.94;
+      letter-spacing: -0.06em;
+      max-width: 1050px;
+    }
+
+    h2 {
+      margin: 0 0 28px;
+      color: var(--dark);
+      font-size: clamp(44px, 5vw, 72px);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+      max-width: 980px;
+    }
+
+    h3 {
+      margin: 0 0 16px;
+      color: var(--accent-blue);
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 25px;
+      line-height: 1.42;
+      margin: 0 0 18px;
+      max-width: 900px;
+    }
+
+    .lead {
+      font-size: clamp(28px, 3.2vw, 42px);
+      line-height: 1.2;
+      letter-spacing: -0.035em;
+      max-width: 960px;
+      margin-top: 34px;
+    }
+
+    .subtitle {
+      margin-top: 34px;
+      font-size: 25px;
+      max-width: 820px;
+      color: var(--blue);
+    }
+
+    .brand-pill {
+      position: absolute;
+      top: 34px;
+      left: 48px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark);
+      letter-spacing: .01em;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      background: var(--red);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 900;
+      border-radius: 0;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 22px;
+      left: 48px;
+      right: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #8d969a;
+      font-size: 13px;
+      z-index: 2;
+    }
+
+    .slide-number {
+      color: var(--red);
+      font-weight: 800;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 26px;
+      max-width: 1060px;
+      margin-top: 10px;
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 28px;
+      padding: 30px 32px;
+      box-shadow: 0 18px 48px rgba(60, 72, 78, 0.08);
+      border: 1px solid rgba(219, 219, 219, 0.55);
+    }
+
+    .soft-card {
+      background: var(--soft);
+    }
+
+    .blue-card {
+      background: var(--light-blue);
+    }
+
+    .red-card {
+      background: var(--red);
+      color: var(--white);
+    }
+
+    .red-card h3,
+    .red-card p,
+    .red-card li {
+      color: var(--white);
+    }
+
+    ul, ol {
+      margin: 0;
+      padding-left: 28px;
+      font-size: 24px;
+      line-height: 1.38;
+    }
+
+    li { margin: 9px 0; }
+
+    .statement {
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1.05;
+      letter-spacing: -0.055em;
+      max-width: 1020px;
+      font-weight: 800;
+    }
+
+    .accent {
+      color: var(--red);
+    }
+
+    .quote {
+      margin-top: 28px;
+      padding: 34px 38px;
+      border-left: 9px solid var(--red);
+      background: var(--white);
+      border-radius: 0 26px 26px 0;
+      font-size: clamp(30px, 3.5vw, 48px);
+      line-height: 1.17;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+      max-width: 980px;
+    }
+
+    .flow {
+      display: flex;
+      align-items: stretch;
+      gap: 16px;
+      margin-top: 28px;
+      max-width: 1100px;
+    }
+
+    .step {
+      flex: 1;
+      padding: 24px;
+      border-radius: 24px;
+      background: var(--white);
+      border: 1px solid rgba(219, 219, 219, 0.75);
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .step .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--red);
+      color: var(--white);
+      font-weight: 900;
+      margin-bottom: 14px;
+      font-size: 16px;
+    }
+
+    .step p {
+      font-size: 22px;
+      margin: 0;
+      line-height: 1.25;
+      font-weight: 650;
+      color: var(--dark);
+    }
+
+    .arrow {
+      align-self: center;
+      color: var(--red);
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 40px;
+      align-items: center;
+      max-width: 1100px;
+    }
+
+    .big-number {
+      font-size: 118px;
+      line-height: .8;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+      color: var(--red);
+    }
+
+    .note {
+      font-size: 20px;
+      color: var(--gray);
+      max-width: 760px;
+      margin-top: 18px;
+    }
+
+    .mini {
+      font-size: 18px;
+      color: var(--gray);
+      line-height: 1.42;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 26px;
+      max-width: 1000px;
+    }
+
+    .tag {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .negative {
+      color: var(--gray);
+      text-decoration: line-through;
+      text-decoration-thickness: 3px;
+      text-decoration-color: rgba(241, 86, 60, 0.55);
+    }
+
+    .closing {
+      background: linear-gradient(135deg, var(--red), #F2753E 42%, #FAAD5E);
+      color: var(--white);
+    }
+
+    .closing h2,
+    .closing p,
+    .closing .kicker,
+    .closing .footer,
+    .closing .slide-number {
+      color: var(--white);
+    }
+
+    .closing .kicker::before {
+      background: var(--white);
+    }
+
+    .closing::before {
+      background: rgba(255,255,255,.12);
+    }
+
+    .closing::after {
+      background: rgba(255,255,255,.12);
+    }
+
+    .speaker-notes {
+      margin-top: 22px;
+      padding: 18px 22px;
+      border-radius: 18px;
+      background: rgba(226, 233, 236, 0.55);
+      color: var(--blue);
+      font-size: 18px;
+      line-height: 1.36;
+      max-width: 880px;
+    }
+
+    @media print {
+      html { scroll-snap-type: none; }
+      .slide {
+        page-break-after: always;
+        min-height: 100vh;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .slide { padding: 86px 28px 60px; }
+      .brand-pill { left: 28px; top: 24px; }
+      .footer { left: 28px; right: 28px; }
+      .grid, .grid.three, .split { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; }
+      .arrow { transform: rotate(90deg); }
+      ul, ol, p { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Business Operations Perspective</div>
+      <h1>From prompts to operational workflows</h1>
+      <p class="lead">How I use AI to turn repeatable HR and Business Operations tasks into structured, reusable systems.</p>
+      <p class="subtitle">Viktoriia Kondakova · Lead People Partner</p>
+    </div>
+    <div class="footer"><span>Proprietary & Confidential Information</span><span class="slide-number">01</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Quick intro</div>
+      <h2>This is not a “how to write prompts” session</h2>
+      <div class="grid">
+        <div class="card blue-card">
+          <h3>What I will not cover</h3>
+          <ul>
+            <li>Basic prompting rules</li>
+            <li>Top 10 AI hacks</li>
+            <li>Generic “ChatGPT can help you write” examples</li>
+          </ul>
+        </div>
+        <div class="card soft-card">
+          <h3>What I want to share</h3>
+          <ul>
+            <li>How I moved from one-off prompts to repeatable workflows</li>
+            <li>How I use AI for structure, tone, and operational clarity</li>
+            <li>What actually changed my daily work</li>
+          </ul>
+        </div>
+      </div>
+      <div class="speaker-notes">Most of us already use ChatGPT, Claude, Gemini, or other AI tools. My focus is on what comes after basic prompting.</div>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">02</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Mindset shift</div>
+      <p class="statement">The biggest productivity gain came not from writing “better prompts”, but from building <span class="accent">repeatable workflows</span>.</p>
+      <div class="quote">AI works better when I describe the expected operational output, not only the task.</div>
+    </div>
+    <div class="footer"><span>Business Operations Perspective</span><span class="slide-number">03</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Example</div>
+      <h2>Role Profiles project</h2>
+      <div class="split">
+        <div class="card">
+          <div class="big-number">20</div>
+          <p><strong>role profiles</strong> adjusted in a very short time with minimal manual formatting.</p>
+          <p class="note">The value was not only speed. The value was consistency.</p>
+        </div>
+        <div>
+          <div class="card soft-card">
+            <h3>Before</h3>
+            <ul>
+              <li>Chaotic prompts</li>
+              <li>Inconsistent output</li>
+              <li>Too many manual fixes</li>
+            </ul>
+          </div>
+          <br />
+          <div class="card blue-card">
+            <h3>After</h3>
+            <ul>
+              <li>Clear structure</li>
+              <li>Defined sections and numbering</li>
+              <li>Expected tone and level of detail</li>
+              <li>Output ready for further use</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">04</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Design the output</div>
+      <h2>When I write a prompt, I define the artifact I want to receive</h2>
+      <div class="tag-list">
+        <div class="tag">Sections</div>
+        <div class="tag">Numbering</div>
+        <div class="tag">Formatting</div>
+        <div class="tag">Tone of voice</div>
+        <div class="tag">Level of detail</div>
+        <div class="tag">Audience</div>
+        <div class="tag">Context</div>
+        <div class="tag">What to avoid</div>
+      </div>
+      <p class="lead">This turns AI from a “text generator” into a tool for creating usable business artifacts.</p>
+    </div>
+    <div class="footer"><span>Business Operations Perspective</span><span class="slide-number">05</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Structure thinking</div>
+      <h2>AI helps me move from messy context to structured execution</h2>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><p>I dictate raw context</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="num">2</div><p>AI structures it</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="num">3</div><p>I adjust logic, tone, and emphasis</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="num">4</div><p>It becomes a usable artifact</p></div>
+      </div>
+      <div class="grid three">
+        <div class="card">Meeting summary</div>
+        <div class="card">Asana update</div>
+        <div class="card">Feedback note</div>
+      </div>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">06</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Iterations</div>
+      <h2>Iterative prompting is normal</h2>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><p>Initial prompt</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="num">2</div><p>Iterations</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="num">3</div><p>Polishing</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="num">4</div><p>Final version</p></div>
+      </div>
+      <div class="quote">“Now generate the ideal reusable prompt that would immediately produce this final result.”</div>
+    </div>
+    <div class="footer"><span>Business Operations Perspective</span><span class="slide-number">07</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Reusable logic</div>
+      <p class="statement">Do not just save conversations. Save <span class="accent">prompt logic</span>.</p>
+      <p class="lead">The final version of the output can become the input for building a stronger reusable prompt.</p>
+      <div class="grid">
+        <div class="card blue-card">
+          <h3>Conversation</h3>
+          <p>Useful once. Hard to reuse consistently.</p>
+        </div>
+        <div class="card soft-card">
+          <h3>Prompt logic</h3>
+          <p>Reusable across similar cases, easier to improve, easier to share.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">08</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Prompt library</div>
+      <h2>Reusable prompts are operational assets</h2>
+      <div class="grid three">
+        <div class="card">Feedback</div>
+        <div class="card">Summaries</div>
+        <div class="card">Role profiles</div>
+        <div class="card">Attrition cases</div>
+        <div class="card">Onboarding communication</div>
+        <div class="card">Policy drafts</div>
+      </div>
+      <p class="lead">A prompt library helps maintain consistent tone of voice, reduce cognitive load, and standardize outputs.</p>
+    </div>
+    <div class="footer"><span>Business Operations Perspective</span><span class="slide-number">09</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">HR-specific value</div>
+      <h2>AI as a tone calibration partner</h2>
+      <div class="split">
+        <div>
+          <p>In HR, the same message can create a different impact depending on wording, audience, and sensitivity.</p>
+          <p>I use AI to calibrate tone faster before finalizing communication.</p>
+        </div>
+        <div class="card soft-card">
+          <h3>Where it helps</h3>
+          <ul>
+            <li>Feedback</li>
+            <li>Compensation discussions</li>
+            <li>Policy communication</li>
+            <li>Organizational changes</li>
+            <li>Offboarding communication</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">10</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Professional style</div>
+      <h2>AI can learn your professional style and thinking</h2>
+      <div class="grid">
+        <div class="card blue-card">
+          <h3>What AI learns from me</h3>
+          <ul>
+            <li>My tone of voice</li>
+            <li>My communication standards</li>
+            <li>How I structure information</li>
+            <li>How I work with sensitive topics</li>
+          </ul>
+        </div>
+        <div class="card soft-card">
+          <h3>What matters to me</h3>
+          <ul>
+            <li>Concise but warm communication</li>
+            <li>Operational clarity</li>
+            <li>Neutrality</li>
+            <li>No fluff</li>
+          </ul>
+        </div>
+      </div>
+      <p class="lead">Over time, this reduces iterations and makes the output closer to my logic.</p>
+    </div>
+    <div class="footer"><span>Business Operations Perspective</span><span class="slide-number">11</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Mirror effect</div>
+      <h2>Your prompts are not only instructions</h2>
+      <p class="statement">They reflect your expertise, operational style, communication standards, and professional personality.</p>
+      <div class="speaker-notes">You can intentionally ask AI to analyze how you formulate prompts, where your instructions are unclear, and what patterns appear in your communication.</div>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">12</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Self-calibration</div>
+      <h2>AI can help analyze your own communication patterns</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>I use it to identify</h3>
+          <ul>
+            <li>Where my prompts are not clear enough</li>
+            <li>Where my expectations contradict each other</li>
+            <li>Where I need to define tone, audience, or output better</li>
+          </ul>
+        </div>
+        <div class="card red-card">
+          <h3>Practical prompt</h3>
+          <p>“Analyze how I usually formulate requests. What should I clarify better to get stronger outputs?”</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>Business Operations Perspective</span><span class="slide-number">13</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Important balance</div>
+      <h2>Reusable prompts are not universal forever</h2>
+      <div class="grid three">
+        <div class="card blue-card">
+          <h3>Revisit</h3>
+          <p>Check if the prompt still fits your current process.</p>
+        </div>
+        <div class="card soft-card">
+          <h3>Retune</h3>
+          <p>Adjust tone, structure, or emphasis when cases change.</p>
+        </div>
+        <div class="card">
+          <h3>Adapt</h3>
+          <p>Different stakeholders and contexts need different outputs.</p>
+        </div>
+      </div>
+      <p class="lead">A good reusable workflow still needs periodic updates.</p>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">14</span></div>
+  </section>
+
+  <section class="slide">
+    <div class="brand-pill"><div class="brand-mark">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Expertise</div>
+      <h2>AI accelerates expertise. It does not replace it.</h2>
+      <div class="grid">
+        <div class="card soft-card">
+          <h3>Strong specialist + AI</h3>
+          <p>Huge acceleration, better structure, faster execution.</p>
+        </div>
+        <div class="card blue-card">
+          <h3>Weak expertise + AI</h3>
+          <p>Weak output faster.</p>
+        </div>
+      </div>
+      <p class="lead">AI is most valuable when it scales already existing professional judgment.</p>
+    </div>
+    <div class="footer"><span>Business Operations Perspective</span><span class="slide-number">15</span></div>
+  </section>
+
+  <section class="slide closing">
+    <div class="brand-pill"><div class="brand-mark" style="background:#fff;color:#F1563C;">MOCG</div> AI Exchange Knowledge Sharing</div>
+    <div class="content">
+      <div class="kicker">Closing thought</div>
+      <h2>For me, AI is not a writing assistant anymore</h2>
+      <p class="statement">It became an operational thinking partner.</p>
+      <p class="lead">The biggest value is not one perfect prompt. It is building repeatable operational systems.</p>
+    </div>
+    <div class="footer"><span>Master of Code Global</span><span class="slide-number">16</span></div>
+  </section>
+
+  <script>
+    document.addEventListener('keydown', (event) => {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const current = Math.round(window.scrollY / window.innerHeight);
+      if (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ') {
+        event.preventDefault();
+        slides[Math.min(current + 1, slides.length - 1)].scrollIntoView({ behavior: 'smooth' });
+      }
+      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+        event.preventDefault();
+        slides[Math.max(current - 1, 0)].scrollIntoView({ behavior: 'smooth' });
+      }
+      if (event.key === 'Home') slides[0].scrollIntoView({ behavior: 'smooth' });
+      if (event.key === 'End') slides[slides.length - 1].scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
